@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Calculator</title>
+    <title>Scientific Calculator</title>
     <style>
         .calculator {
-            width: 310px;
+            width:500px;
             margin: auto;
             background-color: #ffe6f0;
             border: 1px solid #ffb6c1;
-            border-radius: 10px;
+            border-radius: 5px;
             padding: 10px;
             box-sizing: border-box;
             text-align: center;
+            overflow: hidden;
+            border-radius: 8px;
         }
         .calculator-title {
             font-size: 18px;
@@ -23,7 +25,7 @@
             width: 100%;
             height: 50px;
             background-color: #fff;
-            text-align: center;
+            text-align: right;
             padding: 10px;
             box-sizing: border-box;
             border: 1px solid #ffb6c1;
@@ -34,9 +36,9 @@
             width: 100%;
         }
         .button {
-            width: 20%;
-            height: 50px;
-            line-height: 50px;
+            width: calc((100% - 12px) / 6); /* Adjust button width */
+            height: 30px;
+            line-height: 30px;
             float: left;
             text-align: center;
             cursor: pointer;
@@ -45,6 +47,7 @@
             border: none;
             border-radius: 5px;
             margin: 1px;
+            font-size: 14px;
         }
         .button:hover {
             background-color: #ff9ebd;
@@ -55,33 +58,151 @@
         .equal {
             background-color: #ff6699;
         }
+        .wide-button {
+            width: 33.5%;
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <div class="calculator-title">Calculator</div>
-        <div class="calculator-screen">Temporary Display</div>
+        <div class="calculator-title">Scientific Calculator</div>
+        <div id="display" class="calculator-screen">0</div>
         <div class="calculator-keys">
-            <div class="button">1</div>
-            <div class="button">2</div>
-            <div class="button">3</div>
-            <div class="button">4</div>
-            <div class="button">5</div>
-            <div class="button">6</div>
-            <div class="button">7</div>
-            <div class="button">8</div>
-            <div class="button">9</div>
-            <div class="button">0</div>
-            <div class="button">.</div>
-            <div class="button">+</div>
-            <div class="button">-</div>
-            <div class="button">*</div>
-            <div class="button">/</div>
-            <div class="button">%</div>
-            <div class="button">√</div>
-            <div class="button clear">C</div>
-            <div class="button equal">=</div>
+            <!-- First row -->
+            <div class="button" onclick="memoryClear()">MC</div>
+            <div class="button" onclick="memoryRecall()">MR</div>
+            <div class="button" onclick="memoryAdd()">M+</div>
+            <div class="button" onclick="memorySubtract()">M-</div>
+            <div class="button" onclick="memorySave()">MS</div>
+            <div class="button" onclick="deleteLast()">Del</div>
+            <!-- Second row -->
+            <div class="button clear" onclick="clearDisplay()">C</div>
+            <div class="button" onclick="input('/')">/</div>
+            <div class="button" onclick="input('Math.PI')">π</div>
+            <div class="button" onclick="input('Math.E')">e</div>
+            <div class="button" onclick="input('Math.sqrt')">√</div>
+            <div class="button" onclick="input('Math.pow(10,')">10^</div>
+            <!-- Third row -->
+            <div class="button" onclick="input('/')">/</div>
+            <div class="button" onclick="input('*')">x</div>
+            <div class="button" onclick="input('-')">-</div>
+            <div class="button" onclick="input('+')">+</div>
+            <div class="button" onclick="input('.')">.</div>
+            <div class="button" onclick="factorial()">n!</div>
+            <!-- Fourth row -->
+            <div class="button" onclick="input('1')">1</div>
+            <div class="button" onclick="input('2')">2</div>
+            <div class="button" onclick="input('3')">3</div>
+            <div class="button" onclick="input('Math.log')">Ln</div>
+            <div class="button" onclick="input('Math.log10')">log</div>
+            <div class="button" onclick="input('**')">x<sup>y</sup></div>
+            
+            <!-- Fifth row -->
+            <div class="button" onclick="input('4')">4</div>
+            <div class="button" onclick="input('5')">5</div>
+            <div class="button" onclick="input('6')">6</div>
+            <div class="button" onclick="input('Math.sin')">sin</div>
+            <div class="button" onclick="input('Math.cos')">cos</div>
+            <div class="button" onclick="input('Math.tan')">tan</div>
+            <!-- sixth row -->
+            <div class="button" onclick="input('7')">7</div>
+            <div class="button" onclick="input('8')">8</div>
+            <div class="button" onclick="input('9')">9</div>
+            <div class="button" onclick="input('0')">0</div>
+            <div class="button " onclick="input('Math.abs')">|x|</div>
+            <div class="button equal" onclick="calculate()">=</div>
         </div>
     </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let expression = '';
+        let memory = 0;
+        let secondFunction = false;
+
+        function input(char) {
+        if (char === '.' && expression.slice(-1) === '.') {
+            //Prevent double decimal points
+            return;
+        }
+
+        //handling for mathematical functions
+        if (char === 'Math.sqrt' || char === 'Math.abs') {
+            if (expression !== '') {
+                expression = `${char}(${expression})`;
+            } else {
+                expression = `${char}(`;
+            }
+        } else if (char === '**') {
+            //exponentiation, simply append the operator
+            expression += char;
+        } else {
+            expression += char;
+        }
+
+        updateDisplay();
+    }
+
+
+        function calculate() {
+            try {
+            let result = eval(expression);
+            display.textContent = result.toFixed(2); // Round to 2 decimal places
+            expression = result.toString();
+        } catch (e) {
+            display.textContent = 'Error';
+            expression = '';
+        }
+    }
+
+        function clearDisplay() {
+            expression = '';
+            display.textContent = '0';
+        }
+
+        function factorial() {
+            let number = parseInt(expression);
+            let fact = 1;
+            for (let i = 2; i <= number; i++) {
+                fact *= i;
+            }
+            display.textContent = fact;
+            expression = fact.toString();
+        }
+
+        function memoryClear() {
+            memory = 0;
+        }
+
+        function memoryRecall() {
+            expression += memory;
+            updateDisplay();
+        }
+
+        function memoryAdd() {
+            calculate();
+            memory += parseFloat(display.textContent);
+        }
+
+        function memorySubtract() {
+            calculate();
+            memory -= parseFloat(display.textContent);
+        }
+
+        function memorySave() {
+            calculate();
+            memory = parseFloat(display.textContent);
+        }
+
+        function deleteLast() {
+            expression = expression.slice(0, -1);
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            display.textContent = expression;
+        }
+    </script>
 </body>
 </html>
+
